@@ -1,0 +1,6 @@
+.claude/
+*.md
+*.png
+迭代记录/
+.DS_Store
+Thumbs.db

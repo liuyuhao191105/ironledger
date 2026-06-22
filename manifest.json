@@ -1,0 +1,18 @@
+{
+  "name": "铁账本",
+  "short_name": "铁账本",
+  "description": "健身大学生的个人健康生活数字化记事本",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#051937",
+  "background_color": "#f8f7f5",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

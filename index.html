@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>铁账本</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <meta name="theme-color" content="#051937">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="铁账本">
+
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- ==================== 顶部区域（所有 Tab 共享） ==================== -->
+  <header class="header">
+    <h1 class="header__title">铁账本</h1>
+    <!-- 日期选择器：切换日期后所有 Tab 数据同步刷新 -->
+    <input type="date" id="datePicker" class="header__date">
+  </header>
+
+  <!-- ==================== Tab 1：记账 ==================== -->
+  <div class="tab-page tab-page--active" id="tabLedger">
+
+    <!-- 收支概览卡片 -->
+    <section class="summary" id="summary">
+      <div class="summary__card summary__card--income">
+        <span class="summary__label">今日收入</span>
+        <span class="summary__value" id="totalIncome">¥0.00</span>
+      </div>
+      <div class="summary__card summary__card--expense">
+        <span class="summary__label">今日支出</span>
+        <span class="summary__value" id="totalExpense">¥0.00</span>
+      </div>
+      <div class="summary__card summary__card--balance">
+        <span class="summary__label">结余</span>
+        <span class="summary__value" id="balance">¥0.00</span>
+      </div>
+    </section>
+
+    <!-- 图表区域 -->
+    <section class="charts" id="charts">
+      <div class="charts__item">
+        <div class="charts__empty" id="barEmpty">暂无收支记录</div>
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="charts__item">
+        <h3 class="charts__title">支出分类占比</h3>
+        <div class="charts__empty" id="pieEmpty">暂无支出账单</div>
+        <canvas id="pieChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 账单表格区域 -->
+    <section class="records" id="records">
+      <h2 class="records__title">账单明细</h2>
+      <!-- 空状态提示 -->
+      <div class="records__empty" id="emptyState">
+        <span class="records__empty-icon">📝</span>
+        <p class="records__empty-main">还没有账单记录</p>
+        <p class="records__empty-sub">点击右下角 + 按钮开始记账吧</p>
+      </div>
+      <!-- 账单表格 -->
+      <div class="records__table-wrap" id="tableWrap">
+        <table class="records__table" id="billTable">
+          <thead>
+            <tr>
+              <th>分类</th>
+              <th>金额</th>
+              <th>标签</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 新增按钮（浮动，仅记账 Tab 可见） -->
+    <button class="fab" id="addBtn" title="新增记录">+</button>
+  </div>
+
+  <!-- ==================== Tab 2：训练 ==================== -->
+  <div class="tab-page" id="tabTraining">
+    <div class="tab-placeholder">
+      <span class="tab-placeholder__icon">🏋️</span>
+      <p class="tab-placeholder__text">训练记录模块</p>
+      <p class="tab-placeholder__hint">Phase C 开发中，敬请期待</p>
+    </div>
+  </div>
+
+  <!-- ==================== Tab 3：倒计时 ==================== -->
+  <div class="tab-page" id="tabTimer">
+    <div class="tab-placeholder">
+      <span class="tab-placeholder__icon">⏱️</span>
+      <p class="tab-placeholder__text">组间倒计时</p>
+      <p class="tab-placeholder__hint">Phase D 开发中，敬请期待</p>
+    </div>
+  </div>
+
+  <!-- ==================== Tab 4：我的 ==================== -->
+  <div class="tab-page" id="tabProfile">
+    <div class="tab-placeholder">
+      <span class="tab-placeholder__icon">👤</span>
+      <p class="tab-placeholder__text">个人中心</p>
+      <p class="tab-placeholder__hint">紧急联系人 · AI 复盘 · Phase E-F 开发中</p>
+    </div>
+  </div>
+
+  <!-- ==================== 新增/编辑弹窗（全局，默认隐藏） ==================== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal__header">
+        <h2 class="modal__title" id="modalTitle">新增记录</h2>
+        <button class="modal__close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal__body">
+        <!-- 收入/支出切换 -->
+        <div class="form-group">
+          <label class="form-label">类型</label>
+          <div class="switch" id="typeSwitch">
+            <button class="switch__btn switch__btn--active" data-type="expense">支出</button>
+            <button class="switch__btn" data-type="income">收入</button>
+          </div>
+        </div>
+        <!-- 一级分类 -->
+        <div class="form-group">
+          <label class="form-label">分类</label>
+          <select id="categorySelect" class="form-select"></select>
+        </div>
+        <!-- 金额 -->
+        <div class="form-group">
+          <label class="form-label">金额</label>
+          <div class="amount-wrap">
+            <span class="amount-wrap__prefix">¥</span>
+            <input type="text" inputmode="decimal" id="amountInput" class="form-input form-input--amount" placeholder="0.00">
+          </div>
+          <span class="form-error" id="amountError">金额格式不正确</span>
+        </div>
+        <!-- 标签 -->
+        <div class="form-group">
+          <label class="form-label">标签</label>
+          <div class="tag-list" id="tagList"></div>
+          <div class="tag-add">
+            <input type="text" id="tagInput" class="form-input" placeholder="输入自定义标签">
+            <button class="tag-add__btn" id="tagAddBtn" type="button">添加</button>
+          </div>
+        </div>
+        <!-- 备注 -->
+        <div class="form-group">
+          <label class="form-label">备注</label>
+          <input type="text" id="noteInput" class="form-input" placeholder="选填">
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--cancel" id="modalCancel">取消</button>
+        <button class="btn btn--confirm" id="modalConfirm">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 底部导航栏（所有 Tab 共享） ==================== -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="bottom-nav__item bottom-nav__item--active" data-tab="ledger">记账</button>
+    <button class="bottom-nav__item" data-tab="training">训练</button>
+    <button class="bottom-nav__item" data-tab="timer">倒计时</button>
+    <button class="bottom-nav__item" data-tab="profile">我的</button>
+  </nav>
+
+  <!-- 账单浮窗（hover 表格行时显示） -->
+  <div class="bill-tooltip" id="billTooltip" style="display:none"></div>
+
+  <!-- JS 模块 -->
+  <script src="js/categories.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Service Worker 注册（PWA 离线缓存） -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>
