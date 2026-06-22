@@ -265,6 +265,7 @@ body {
 
 .records__table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: var(--fs-body);
   min-width: 520px;
