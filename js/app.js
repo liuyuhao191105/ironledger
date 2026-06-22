@@ -444,7 +444,7 @@ function renderTable(bills) {
     for (var j = 0; j < tags.length; j++) {
       var span = document.createElement('span');
       span.className = 'tag';
-      var color = getTagColorByName(b.category, b.type);
+      var color = getTagColorByName(tags[j], b.type);
       span.style.background = color;
       span.style.color = '#fff';
       span.textContent = tags[j];

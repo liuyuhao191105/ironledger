@@ -267,7 +267,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--fs-body);
-  min-width: 480px;
+  min-width: 520px;
 }
 
 /* 表头 */
