@@ -162,25 +162,15 @@ body {
 .summary__card--expense .summary__value { color: var(--expense); }
 .summary__card--balance .summary__value { color: var(--text); }
 
-/* 收入卡片视觉降权：背景收拢、无阴影、标签金额同行紧凑排列 */
+/* 收入卡片视觉降权：背景收拢、文字后退 */
 .summary__card--income {
   background: var(--bg);
   box-shadow: none;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 12px 14px;
 }
 .summary__card--income .summary__label {
   color: var(--text-muted);
-  margin-bottom: 0;
-  font-size: var(--fs-small);
 }
-.summary__card--income .summary__value {
-  color: var(--text-light);
-  font-size: var(--fs-body);
-  font-weight: 600;
-}
+.summary__card--income .summary__value { color: var(--text-light); }
 
 /* ==========================================
    图表区域
