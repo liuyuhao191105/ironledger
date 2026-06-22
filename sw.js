@@ -4,7 +4,7 @@
    v1 — 2026-06-21
    ========================================== */
 
-const CACHE_NAME = 'ironledger-v1';
+const CACHE_NAME = 'ironledger-v2';
 
 // 需要预缓存的本地文件
 const PRECACHE = [
