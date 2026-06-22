@@ -280,9 +280,9 @@ body {
   border-bottom: 1px solid var(--border);
   width: 25%;                       /* 四列均分 */
 }
-/* 金额列表头与数据列对齐（均为右对齐） */
+/* 金额列表头与数据列对齐（均为居中） */
 .records__table thead th:nth-child(2) {
-  text-align: right;
+  text-align: center;
 }
 
 /* 数据列宽与表头同步 */
@@ -308,9 +308,9 @@ body {
   border-bottom: none;
 }
 
-/* 金额列右对齐 */
+/* 金额列居中 */
 .records__table td.amount-cell {
-  text-align: right;
+  text-align: center;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
