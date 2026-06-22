@@ -265,12 +265,19 @@ body {
 .records__table {
   width: 100%;
   table-layout: fixed;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: var(--fs-body);
   min-width: 520px;
 }
 
-/* 表头 */
+/* 表头行：sticky 加在 thead 上避免水平滚动时列偏移 */
+.records__table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .records__table thead th {
   background: var(--deep-light);
   color: var(--deep);
@@ -279,9 +286,7 @@ body {
   text-align: left;
   white-space: nowrap;
   font-size: var(--fs-small);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  border-bottom: 1px solid var(--border);
 }
 
 /* 斑马纹 */
@@ -296,6 +301,9 @@ body {
   padding: 12px 10px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
 }
 .records__table tbody tr:last-child td {
   border-bottom: none;
