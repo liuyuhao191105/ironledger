@@ -280,8 +280,10 @@ body {
   border-bottom: 1px solid var(--border);
   width: 20%;                       /* 前三列均分 */
 }
-/* 金额列表头居中 */
-.records__table thead th:nth-child(2) {
+/* 前三列统一居中对齐，间隔一致 */
+.records__table thead th:nth-child(1),
+.records__table thead th:nth-child(2),
+.records__table thead th:nth-child(3) {
   text-align: center;
 }
 /* 操作列表头：剩余空间居中 */
@@ -299,6 +301,12 @@ body {
   border-top: 0;
   border-left: 0;
   border-right: 0;
+}
+/* 前三列数据居中，间隔一致 */
+.records__table td:nth-child(1),
+.records__table td:nth-child(2),
+.records__table td:nth-child(3) {
+  text-align: center;
 }
 /* 操作列数据居中 */
 .records__table td:last-child {
