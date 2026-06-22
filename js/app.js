@@ -267,7 +267,7 @@ function renderTags() {
   var tags = loadTags(catName);
   tagList.innerHTML = '';
   tags.forEach(function (tag, idx) {
-    var color = getTagColorByName(categorySelect.value, currentType);
+    var color = getTagColorByName(tag, currentType);
     var isSelected = selectedTag === tag;
 
     var el = document.createElement('span');
@@ -444,7 +444,7 @@ function renderTable(bills) {
     for (var j = 0; j < tags.length; j++) {
       var span = document.createElement('span');
       span.className = 'tag';
-      var color = getTagColorByName(b.category, b.type);
+      var color = getTagColorByName(tags[j], b.type);
       span.style.background = color;
       span.style.color = '#fff';
       span.textContent = tags[j];

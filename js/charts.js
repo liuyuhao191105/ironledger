@@ -133,27 +133,27 @@ function updateCharts(bills) {
   var barEmpty = document.getElementById('barEmpty');
   var pieEmpty = document.getElementById('pieEmpty');
 
-  // ---- 当日汇总（饼图） ----
-  var expenseByCat = {};
+  // ---- 当日汇总（饼图：按标签分组） ----
+  var expenseByTag = {};
   for (var i = 0; i < bills.length; i++) {
     var b = bills[i];
     if (b.type === 'expense') {
-      expenseByCat[b.category] = (expenseByCat[b.category] || 0) + b.amount;
+      var tag = b.tags && b.tags[0] ? b.tags[0] : '未分类';
+      expenseByTag[tag] = (expenseByTag[tag] || 0) + b.amount;
     }
   }
 
-  // ---- 环形图：支出分类占比（当日） ----
-  var catNames   = Object.keys(expenseByCat);
-  var catAmounts = catNames.map(function (k) { return expenseByCat[k]; });
+  // ---- 环形图：支出标签占比（当日） ----
+  var tagNames   = Object.keys(expenseByTag);
+  var tagAmounts = tagNames.map(function (k) { return expenseByTag[k]; });
 
-  pieChart.data.labels = catNames;
-  pieChart.data.datasets[0].data = catAmounts;
-  // 饼图分类颜色按分类名哈希取色，支出色板
-  pieChart.data.datasets[0].backgroundColor = catNames.map(function (cat) {
-    return getTagColorByName(cat, 'expense');
+  pieChart.data.labels = tagNames;
+  pieChart.data.datasets[0].data = tagAmounts;
+  pieChart.data.datasets[0].backgroundColor = tagNames.map(function (tag) {
+    return getTagColorByName(tag, 'expense');
   });
   pieChart.update();
-  pieEmpty.style.display = catNames.length === 0 ? '' : 'none';
+  pieEmpty.style.display = tagNames.length === 0 ? '' : 'none';
 
   // ---- 柱状图：本月收支叠加 ----
   var allBills = loadBills();
