@@ -288,6 +288,10 @@ body {
   font-size: var(--fs-small);
   border-bottom: 1px solid var(--border);
 }
+/* 金额列表头与数据列对齐（均为右对齐） */
+.records__table thead th:nth-child(2) {
+  text-align: right;
+}
 
 /* 斑马纹 */
 .records__table tbody tr:nth-child(even) {
