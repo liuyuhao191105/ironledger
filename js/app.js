@@ -11,7 +11,7 @@ var currentDate  = new Date().toISOString().slice(0, 10);
 var currentTab   = 'ledger';        // 当前激活的 Tab
 var editingId    = null;
 var currentType  = 'expense';
-var selectedTags = [];
+var selectedTag = null;
 
 // ---------- DOM 引用 ----------
 
@@ -110,7 +110,7 @@ function init() {
 
   // 分类切换 → 联动刷新标签池
   categorySelect.addEventListener('change', function () {
-    selectedTags = [];
+    selectedTag = null;
     renderTags();
   });
 
@@ -160,7 +160,7 @@ function openAddModal() {
   editingId = null;
   modalTitle.textContent = '新增记录';
   currentType = 'expense';
-  selectedTags = [];
+  selectedTag = null;
   resetForm();
   setModalTypeClass();
   modalOverlay.classList.add('modal-overlay--open');
@@ -180,7 +180,7 @@ function resetForm() {
   clearAmountError();
   noteInput.value = '';
   tagInput.value = '';
-  selectedTags = [];
+  selectedTag = null;
   renderCategories();
   renderTags();
 }
@@ -194,7 +194,7 @@ function switchType(type) {
     btn.classList.toggle('switch__btn--active', btn.dataset.type === type);
   });
   setModalTypeClass();
-  selectedTags = [];    // 切换类型时清空已选标签
+  selectedTag = null;    // 切换类型时清空已选标签
   renderCategories();
   renderTags();         // 标签列表跟随类型刷新
 }
@@ -268,7 +268,7 @@ function renderTags() {
   tagList.innerHTML = '';
   tags.forEach(function (tag, idx) {
     var color = getTagColorByName(tag, currentType);
-    var isSelected = selectedTags.indexOf(tag) !== -1;
+    var isSelected = selectedTag === tag;
 
     var el = document.createElement('span');
     el.className = 'tag-item';
@@ -310,12 +310,7 @@ function renderTags() {
 }
 
 function toggleTag(tagName) {
-  var idx = selectedTags.indexOf(tagName);
-  if (idx !== -1) {
-    selectedTags.splice(idx, 1);
-  } else {
-    selectedTags.push(tagName);
-  }
+  selectedTag = (selectedTag === tagName) ? null : tagName;
   renderTags();
 }
 
@@ -331,9 +326,7 @@ function addTag(name) {
   if (tags.indexOf(name) !== -1) return;
   tags.push(name);
   saveTags(catName, tags);
-  if (selectedTags.indexOf(name) === -1) {
-    selectedTags.push(name);
-  }
+  selectedTag = name;
   renderTags();
 }
 
@@ -344,8 +337,7 @@ function removeTag(name) {
   if (idx === -1) return;
   tags.splice(idx, 1);
   saveTags(catName, tags);
-  var selIdx = selectedTags.indexOf(name);
-  if (selIdx !== -1) selectedTags.splice(selIdx, 1);
+  if (selectedTag === name) selectedTag = null;
   renderTags();
 }
 
@@ -355,7 +347,8 @@ function submitForm() {
   var category = categorySelect.value;
   var amountStr = amountInput.value.trim();
 
-  if (!category)   { alert('请选择分类'); return; }
+  if (!category)    { alert('请选择分类'); return; }
+  if (!selectedTag)  { alert('请选择标签'); return; }
   if (!validateAmount(amountStr)) return;
 
   var amount = Math.round(parseFloat(amountStr) * 100) / 100;
@@ -369,7 +362,7 @@ function submitForm() {
         bills[i].type     = currentType;
         bills[i].category = category;
         bills[i].amount   = amount;
-        bills[i].tags     = selectedTags.slice();
+        bills[i].tags     = selectedTag ? [selectedTag] : [];
         bills[i].note     = note;
         break;
       }
@@ -384,7 +377,7 @@ function submitForm() {
       type:     currentType,
       category: category,
       amount:   amount,
-      tags:     selectedTags.slice(),
+      tags:     selectedTag ? [selectedTag] : [],
       note:     note,
     };
     var bills = loadBills();
@@ -515,7 +508,7 @@ function editBill(id) {
   editingId    = id;
   modalTitle.textContent = '编辑记录';
   currentType  = bill.type;
-  selectedTags = bill.tags.slice();
+  selectedTag = (bill.tags && bill.tags[0]) ? bill.tags[0] : null;
 
   // 收支类型切换
   typeSwitch.querySelectorAll('.switch__btn').forEach(function (btn) {
