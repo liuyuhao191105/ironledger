@@ -4,7 +4,7 @@
    v1 — 2026-06-21
    ========================================== */
 
-const CACHE_NAME = 'ironledger-v3';
+const CACHE_NAME = 'ironledger-v4';
 
 // 需要预缓存的本地文件
 const PRECACHE = [
@@ -46,37 +46,24 @@ self.addEventListener('activate', function (event) {
   );
 });
 
-// ========== fetch：缓存优先，后台更新 ==========
+// ========== fetch：网络优先，离线回退缓存 ==========
 self.addEventListener('fetch', function (event) {
-  // 只处理 GET
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then(function (cached) {
-      if (cached) {
-        // 有缓存：后台拉新版本（下次生效）
-        fetch(event.request).then(function (response) {
-          if (response && response.status === 200) {
-            caches.open(CACHE_NAME).then(function (cache) {
-              cache.put(event.request, response);
-            });
-          }
-        }).catch(function () { /* 离线时 fetch 失败，忽略 */ });
-        return cached;
-      }
-
-      // 无缓存：网络请求
-      return fetch(event.request).then(function (response) {
-        // 只缓存成功响应
-        if (!response || response.status !== 200) return response;
+    fetch(event.request).then(function (response) {
+      // 网络成功 → 更新缓存，返回最新内容
+      if (response && response.status === 200) {
         var clone = response.clone();
         caches.open(CACHE_NAME).then(function (cache) {
           cache.put(event.request, clone);
         });
-        return response;
-      }).catch(function () {
-        // 离线且无缓存：对 HTML 请求返回空壳（实际不会触发，因为首页已预缓存）
-        return new Response('离线不可用', { status: 503 });
+      }
+      return response;
+    }).catch(function () {
+      // 网络失败 → 回退缓存
+      return caches.match(event.request).then(function (cached) {
+        return cached || new Response('离线不可用', { status: 503 });
       });
     })
   );
