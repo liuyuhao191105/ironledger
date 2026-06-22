@@ -278,22 +278,32 @@ body {
   white-space: nowrap;
   font-size: var(--fs-small);
   border-bottom: 1px solid var(--border);
-  width: 25%;                       /* 四列均分 */
+  width: 20%;                       /* 前三列均分 */
 }
-/* 金额列表头与数据列对齐（均为居中） */
+/* 金额列表头居中 */
 .records__table thead th:nth-child(2) {
+  text-align: center;
+}
+/* 操作列表头：剩余空间居中 */
+.records__table thead th:last-child {
+  width: 40%;
   text-align: center;
 }
 
 /* 数据列宽与表头同步 */
 .records__table td {
-  width: 25%;
+  width: 20%;
   padding: 12px 10px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
   border-top: 0;
   border-left: 0;
   border-right: 0;
+}
+/* 操作列数据居中 */
+.records__table td:last-child {
+  width: 40%;
+  text-align: center;
 }
 
 /* 斑马纹 */
