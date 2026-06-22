@@ -146,15 +146,6 @@
           <label class="form-label">分类</label>
           <select id="categorySelect" class="form-select"></select>
         </div>
-        <!-- 金额 -->
-        <div class="form-group">
-          <label class="form-label">金额</label>
-          <div class="amount-wrap">
-            <span class="amount-wrap__prefix">¥</span>
-            <input type="text" inputmode="decimal" id="amountInput" class="form-input form-input--amount" placeholder="0.00">
-          </div>
-          <span class="form-error" id="amountError">金额格式不正确</span>
-        </div>
         <!-- 标签 -->
         <div class="form-group">
           <label class="form-label">标签</label>
@@ -163,6 +154,15 @@
             <input type="text" id="tagInput" class="form-input" placeholder="输入自定义标签">
             <button class="tag-add__btn" id="tagAddBtn" type="button">添加</button>
           </div>
+        </div>
+        <!-- 金额 -->
+        <div class="form-group">
+          <label class="form-label">金额</label>
+          <div class="amount-wrap">
+            <span class="amount-wrap__prefix">¥</span>
+            <input type="text" inputmode="decimal" id="amountInput" class="form-input form-input--amount" placeholder="0.00">
+          </div>
+          <span class="form-error" id="amountError">金额格式不正确</span>
         </div>
         <!-- 备注 -->
         <div class="form-group">
