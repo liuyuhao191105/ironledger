@@ -81,11 +81,7 @@ function initCharts() {
       labels: [],                                        
       datasets: [{
         data: [],                                        
-        backgroundColor: [
-          '#c15236', '#b33f38', '#a32d39', '#911b39',
-          '#7e0738', '#00be72', '#008792', '#004d79',
-          '#051937', '#acea1f',
-        ],
+        backgroundColor: [],  // 由 updateCharts 按标签动态赋值
         borderWidth: 2,
         borderColor: '#fff',
         hoverBorderWidth: 3,
@@ -114,7 +110,7 @@ function initCharts() {
               // 格式化浮窗：分类 / 金额
               var label = ctx.label || '';
               var value = ctx.parsed || 0;
-              return '分类：' + label + '    金额：¥' + value.toFixed(2);
+              return '标签：' + label + '    金额：¥' + value.toFixed(2);
             },
           },
         },
@@ -126,8 +122,8 @@ function initCharts() {
 // ---------- 图表数据刷新 ----------
 
 /**
- * 更新图表：饼图按当日支出分类，柱状图按当月汇总
- * @param {Array} bills - 当日账单数组（用于饼图）
+ * 更新图表：饼图按当日标签分组，柱状图按当月汇总
+ * @param {Array} bills - 当日账单数组
  */
 function updateCharts(bills) {
   var barEmpty = document.getElementById('barEmpty');

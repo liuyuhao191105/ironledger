@@ -37,10 +37,19 @@ var billTooltip    = document.getElementById('billTooltip');
 
 // ---------- 账单浮窗 ----------
 
-/** 显示浮窗：分类 / 备注 / 金额（无收支颜色） */
+/** 按 ID 查找账单 */
+function findBill(id) {
+  var bills = loadBills();
+  for (var i = 0; i < bills.length; i++) {
+    if (bills[i].id === id) return bills[i];
+  }
+  return null;
+}
+
+/** 显示浮窗：标签 / 备注 / 金额 */
 function showTooltip(bill, e) {
   billTooltip.innerHTML =
-    '<div class="bill-tooltip__row"><span class="bill-tooltip__label">分类</span><span class="bill-tooltip__value">' + bill.category + '</span></div>' +
+    '<div class="bill-tooltip__row"><span class="bill-tooltip__label">标签</span><span class="bill-tooltip__value">' + (bill.tags && bill.tags[0] || '无') + '</span></div>' +
     '<div class="bill-tooltip__row"><span class="bill-tooltip__label">备注</span><span class="bill-tooltip__value">' + (bill.note || '无') + '</span></div>' +
     '<div class="bill-tooltip__row"><span class="bill-tooltip__label">金额</span><span class="bill-tooltip__value">¥' + bill.amount.toFixed(2) + '</span></div>';
   billTooltip.style.display = 'block';
@@ -147,8 +156,12 @@ function switchTab(tabName) {
   });
 
   // 页面容器显隐切换
+  var tabPageId = {
+    ledger: 'tabLedger', training: 'tabTraining',
+    timer: 'tabTimer', profile: 'tabProfile'
+  }[tabName];
   document.querySelectorAll('.tab-page').forEach(function (page) {
-    page.classList.toggle('tab-page--active', page.id === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    page.classList.toggle('tab-page--active', page.id === tabPageId);
   });
 
   console.log('📑 切换到：' + tabName);
@@ -159,8 +172,6 @@ function switchTab(tabName) {
 function openAddModal() {
   editingId = null;
   modalTitle.textContent = '新增记录';
-  currentType = 'expense';
-  selectedTag = null;
   resetForm();
   setModalTypeClass();
   modalOverlay.classList.add('modal-overlay--open');
@@ -169,7 +180,7 @@ function openAddModal() {
 function closeModal() {
   modalOverlay.classList.remove('modal-overlay--open');
   resetForm();
-  renderAll();   // 弹窗关闭时刷新主界面（分类管理可能改过数据）
+  renderAll();
 }
 
 function resetForm() {
@@ -266,7 +277,7 @@ function renderTags() {
   if (!catName) return;   // 下拉框为空时跳过
   var tags = loadTags(catName);
   tagList.innerHTML = '';
-  tags.forEach(function (tag, idx) {
+  tags.forEach(function (tag) {
     var color = getTagColorByName(tag, currentType);
     var isSelected = selectedTag === tag;
 
@@ -286,11 +297,9 @@ function renderTags() {
       el.style.color = color;
     }
 
-    var label = document.createElement('span');
-    label.textContent = tag;
-    el.appendChild(label);
+      el.textContent = tag;
 
-    // × 删除按钮（浅色标签上加深，提升可见度）
+      // × 删除按钮（浅色标签上加深，提升可见度）
     var closeBtn = document.createElement('span');
     closeBtn.className = 'tag-item__close';
     closeBtn.textContent = '×';
@@ -353,38 +362,32 @@ function submitForm() {
 
   var amount = Math.round(parseFloat(amountStr) * 100) / 100;
   var note = noteInput.value.trim();
+  var tag = selectedTag ? [selectedTag] : [];
 
+  var bills = loadBills();
   if (editingId) {
-    // 编辑模式：找到原记录并覆盖字段（保留原始日期和 ID）
-    var bills = loadBills();
     for (var i = 0; i < bills.length; i++) {
       if (bills[i].id === editingId) {
         bills[i].type     = currentType;
         bills[i].category = category;
         bills[i].amount   = amount;
-        bills[i].tags     = selectedTag ? [selectedTag] : [];
+        bills[i].tags     = tag;
         bills[i].note     = note;
         break;
       }
     }
-    saveBills(bills);
-    console.log('✏️ 编辑账单：' + editingId);
   } else {
-    // 新增模式
-    var bill = {
+    bills.push({
       id:       'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       date:     currentDate,
       type:     currentType,
       category: category,
       amount:   amount,
-      tags:     selectedTag ? [selectedTag] : [],
+      tags:     tag,
       note:     note,
-    };
-    var bills = loadBills();
-    bills.push(bill);
-    saveBills(bills);
-    console.log('✅ 新增账单：', bill);
+    });
   }
+  saveBills(bills);
 
   closeModal();   // closeModal 内部已调用 renderAll()
 }
@@ -438,19 +441,20 @@ function renderTable(bills) {
     var b = bills[i];
     var tr = document.createElement('tr');
 
-    // 标签（着色 chip）
+    // 标签（着色 chip，单标签）
     var tdTags = document.createElement('td');
-    var tags = b.tags || [];
-    for (var j = 0; j < tags.length; j++) {
+    var tagName = b.tags && b.tags[0];
+    if (tagName) {
       var span = document.createElement('span');
       span.className = 'tag';
-      var color = getTagColorByName(tags[j], b.type);
+      var color = getTagColorByName(tagName, b.type);
       span.style.background = color;
       span.style.color = '#fff';
-      span.textContent = tags[j];
+      span.textContent = tagName;
       tdTags.appendChild(span);
+    } else {
+      tdTags.textContent = '-';
     }
-    if (tags.length === 0) tdTags.textContent = '-';
     tr.appendChild(tdTags);
 
     // 金额（收入绿 / 支出橙）
@@ -498,11 +502,7 @@ function renderTable(bills) {
 
 /** 点击编辑：回填弹窗 */
 function editBill(id) {
-  var bills = loadBills();
-  var bill = null;
-  for (var i = 0; i < bills.length; i++) {
-    if (bills[i].id === id) { bill = bills[i]; break; }
-  }
+  var bill = findBill(id);
   if (!bill) return;
 
   editingId    = id;
