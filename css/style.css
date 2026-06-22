@@ -297,6 +297,12 @@ body {
 /* 数据列宽与表头同步 */
 .records__table td {
   width: 25%;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
 }
 
 /* 斑马纹 */
@@ -307,14 +313,6 @@ body {
   background: #f0faf6;
 }
 
-.records__table td {
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-  border-top: 0;
-  border-left: 0;
-  border-right: 0;
-}
 .records__table tbody tr:last-child td {
   border-bottom: none;
 }
