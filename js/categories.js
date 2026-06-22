@@ -42,14 +42,28 @@ const INCOME_TAG_COLORS = ['#0a2846', '#005878', '#008b90', '#00c495', '#86ddbc'
 const EXPENSE_TAG_COLORS = ['#912244', '#c44850', '#e06b42', '#f2935c', '#e8b0d0'];
 
 /**
- * 按标签索引轮换取色，可选按收支类型选色板
- * @param {number} index
- * @param {'income'|'expense'} [type] - 不传则用收入色板
+ * 字符串哈希 → 整数（同一字符串永远返回同一值）
+ * @param {string} s
+ * @returns {number}
+ */
+function hashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) {
+    h = ((h << 5) - h) + s.charCodeAt(i);
+    h = h | 0;
+  }
+  return Math.abs(h);
+}
+
+/**
+ * 按标签名哈希取色，同名标签永远同一个颜色
+ * @param {string} name - 标签名或分类名
+ * @param {'income'|'expense'} [type]
  * @returns {string}
  */
-function getTagColor(index, type) {
+function getTagColorByName(name, type) {
   var colors = type === 'expense' ? EXPENSE_TAG_COLORS : INCOME_TAG_COLORS;
-  return colors[index % colors.length];
+  return colors[hashStr(name) % colors.length];
 }
 
 /**

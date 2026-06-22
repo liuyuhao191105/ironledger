@@ -33,7 +33,7 @@ var amountError    = document.getElementById('amountError');
 var billTooltip    = document.getElementById('billTooltip');
 
 // ---------- 工具函数 ----------
-// getTagColor() 由 categories.js 提供，已支持按收支类型分色
+// getTagColorByName() 由 categories.js 提供，按标签名哈希取色
 
 // ---------- 账单浮窗 ----------
 
@@ -267,7 +267,7 @@ function renderTags() {
   var tags = loadTags(catName);
   tagList.innerHTML = '';
   tags.forEach(function (tag, idx) {
-    var color = getTagColor(idx, currentType);
+    var color = getTagColorByName(tag, currentType);
     var isSelected = selectedTags.indexOf(tag) !== -1;
 
     var el = document.createElement('span');
@@ -463,7 +463,7 @@ function renderTable(bills) {
     for (var j = 0; j < tags.length; j++) {
       var span = document.createElement('span');
       span.className = 'tag';
-      var color = getTagColor(j, b.type);
+      var color = getTagColorByName(tags[j], b.type);
       span.style.background = color;
       span.style.color = '#fff';
       span.textContent = tags[j];

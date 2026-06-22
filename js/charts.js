@@ -126,40 +126,47 @@ function initCharts() {
 // ---------- 图表数据刷新 ----------
 
 /**
- * 根据当日账单更新图表（Phase B 接入真实数据）
- * @param {Array} bills - 当日账单数组
+ * 更新图表：饼图按当日支出分类，柱状图按当月汇总
+ * @param {Array} bills - 当日账单数组（用于饼图）
  */
 function updateCharts(bills) {
   var barEmpty = document.getElementById('barEmpty');
   var pieEmpty = document.getElementById('pieEmpty');
 
-  // ---- 汇总 ----
-  var totalIncome = 0, totalExpense = 0;
-  var expenseByCat = {};   // { 分类名: 金额合计 }
+  // ---- 当日汇总（饼图） ----
+  var expenseByCat = {};
   for (var i = 0; i < bills.length; i++) {
     var b = bills[i];
-    if (b.type === 'income') {
-      totalIncome += b.amount;
-    } else {
-      totalExpense += b.amount;
+    if (b.type === 'expense') {
       expenseByCat[b.category] = (expenseByCat[b.category] || 0) + b.amount;
     }
   }
 
-  // ---- 柱状图：收入 VS 支出 ----
-  barChart.data.datasets[0].data = [totalIncome, totalExpense];
-  barChart.update();
-
-  // 空状态 overlay
-  barEmpty.style.display = (totalIncome === 0 && totalExpense === 0) ? '' : 'none';
-
-  // ---- 环形图：支出分类占比 ----
+  // ---- 环形图：支出分类占比（当日） ----
   var catNames   = Object.keys(expenseByCat);
   var catAmounts = catNames.map(function (k) { return expenseByCat[k]; });
 
   pieChart.data.labels = catNames;
   pieChart.data.datasets[0].data = catAmounts;
+  // 饼图分类颜色按分类名哈希取色，支出色板
+  pieChart.data.datasets[0].backgroundColor = catNames.map(function (cat) {
+    return getTagColorByName(cat, 'expense');
+  });
   pieChart.update();
-
   pieEmpty.style.display = catNames.length === 0 ? '' : 'none';
+
+  // ---- 柱状图：本月收支叠加 ----
+  var allBills = loadBills();
+  var currentMonth = currentDate.slice(0, 7);
+  var monthlyIncome = 0, monthlyExpense = 0;
+  for (var j = 0; j < allBills.length; j++) {
+    var mb = allBills[j];
+    if (mb.date.slice(0, 7) !== currentMonth) continue;
+    if (mb.type === 'income') monthlyIncome += mb.amount;
+    else monthlyExpense += mb.amount;
+  }
+
+  barChart.data.datasets[0].data = [monthlyIncome, monthlyExpense];
+  barChart.update();
+  barEmpty.style.display = (monthlyIncome === 0 && monthlyExpense === 0) ? '' : 'none';
 }

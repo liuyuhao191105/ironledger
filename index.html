@@ -44,12 +44,8 @@
       </div>
     </section>
 
-    <!-- 图表区域 -->
+    <!-- 支出饼图 -->
     <section class="charts" id="charts">
-      <div class="charts__item">
-        <div class="charts__empty" id="barEmpty">暂无收支记录</div>
-        <canvas id="barChart"></canvas>
-      </div>
       <div class="charts__item">
         <h3 class="charts__title">支出分类占比</h3>
         <div class="charts__empty" id="pieEmpty">暂无支出账单</div>
@@ -81,6 +77,15 @@
           <tbody id="tableBody">
           </tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- 本月收支柱状图 -->
+    <section class="charts" id="monthlyChart">
+      <div class="charts__item">
+        <h3 class="charts__title">本月收支</h3>
+        <div class="charts__empty" id="barEmpty">暂无收支记录</div>
+        <canvas id="barChart"></canvas>
       </div>
     </section>
 
