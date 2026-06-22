@@ -445,18 +445,6 @@ function renderTable(bills) {
     var b = bills[i];
     var tr = document.createElement('tr');
 
-    // 分类
-    var tdCat = document.createElement('td');
-    tdCat.textContent = b.category;
-    tr.appendChild(tdCat);
-
-    // 金额（收入绿 / 支出橙）
-    var tdAmt = document.createElement('td');
-    tdAmt.className = 'amount-cell';
-    tdAmt.style.color = b.type === 'income' ? 'var(--income)' : 'var(--expense)';
-    tdAmt.textContent = (b.type === 'income' ? '+' : '-') + '¥' + b.amount.toFixed(2);
-    tr.appendChild(tdAmt);
-
     // 标签（着色 chip）
     var tdTags = document.createElement('td');
     var tags = b.tags || [];
@@ -471,6 +459,13 @@ function renderTable(bills) {
     }
     if (tags.length === 0) tdTags.textContent = '-';
     tr.appendChild(tdTags);
+
+    // 金额（收入绿 / 支出橙）
+    var tdAmt = document.createElement('td');
+    tdAmt.className = 'amount-cell';
+    tdAmt.style.color = b.type === 'income' ? 'var(--income)' : 'var(--expense)';
+    tdAmt.textContent = (b.type === 'income' ? '+' : '-') + '¥' + b.amount.toFixed(2);
+    tr.appendChild(tdAmt);
 
     // 备注
     var tdNote = document.createElement('td');
